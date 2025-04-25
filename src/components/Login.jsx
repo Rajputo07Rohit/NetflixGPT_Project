@@ -4,9 +4,12 @@ import { checkValidData } from "../utilis/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../utilis/firebase";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utilis/Redux/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -14,7 +17,8 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const Fullname = useRef(null);
-  const nav = useNavigate()
+  const nav = useNavigate();
+  const dispatch = useDispatch();
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
@@ -37,8 +41,31 @@ const Login = () => {
         .then((userCredential) => {
           // Signed up
           const user = userCredential.user;
-          console.log(user);
-          nav("/browse")
+          updateProfile(user, {
+            displayName: fullnameVal,
+            photoURL: "https://avatars.githubusercontent.com/u/93236799?v=4",
+          })
+            .then(() => {
+              // Profile updated!
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
+              );
+              nav("/browse");
+              // ...
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+              setErrorMessage(error.message);
+            });
+
           // ...
         })
         .catch((error) => {
@@ -47,14 +74,13 @@ const Login = () => {
           setErrorMessage(errorMessage);
           // ..
         });
-        
     } else {
       // Sign In Logic
       signInWithEmailAndPassword(auth, emailVal, passwordVal)
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          nav("/browse")
+          nav("/browse");
           console.log(user);
           // ...
         })
