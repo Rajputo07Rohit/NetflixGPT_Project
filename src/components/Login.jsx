@@ -7,9 +7,9 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../utilis/firebase";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utilis/Redux/userSlice";
+import { UserAvatar } from "../utilis/constant";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -17,7 +17,6 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const Fullname = useRef(null);
-  const nav = useNavigate();
   const dispatch = useDispatch();
 
   const toggleSignInForm = () => {
@@ -43,7 +42,7 @@ const Login = () => {
           const user = userCredential.user;
           updateProfile(user, {
             displayName: fullnameVal,
-            photoURL: "https://avatars.githubusercontent.com/u/93236799?v=4",
+            photoURL: UserAvatar,
           })
             .then(() => {
               // Profile updated!
@@ -54,10 +53,9 @@ const Login = () => {
                   uid: uid,
                   email: email,
                   displayName: displayName,
-                  photoURL: photoURL,
+                  photoURL: UserAvatar,
                 })
               );
-              nav("/browse");
               // ...
             })
             .catch((error) => {
@@ -80,8 +78,6 @@ const Login = () => {
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          nav("/browse");
-          console.log(user);
           // ...
         })
         .catch((error) => {

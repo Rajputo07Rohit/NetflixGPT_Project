@@ -1,45 +1,79 @@
-import React from "react";
-import {signOut } from "firebase/auth";
+import React, { useEffect } from "react";
+import { signOut } from "firebase/auth";
 import { auth } from "../utilis/firebase";
 import { useDispatch, useSelector } from "react-redux";
-import { removeUser } from "../utilis/Redux/userSlice";
+import { removeUser, addUser } from "../utilis/Redux/userSlice";
 import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { Logo, UserAvatar, } from "../utilis/constant";
 
 const Header = () => {
   const nav = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector(store => store.user );
-
+  const user = useSelector((store) => store.user);
 
   const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+      })
+      .catch((error) => {
+        // An error happened.
+        nav("/error");
+      });
+  };
 
-    signOut(auth).then(() => {
-      // Sign-out successful.
-      dispatch(removeUser());
-      
-      nav("/")
-    }).catch((error) => {
-      // An error happened.
-      nav("/error")
+  useEffect(() => { 
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+      const { uid, email, displayName, photoURL } = user;
+           
+        dispatch(
+          addUser({
+            uid: uid,
+            email: email,
+            displayName: displayName,
+            photoURL: photoURL,
+          })
+        );
+        nav("/browse");
+        // ...
+      } else {
+        dispatch(removeUser());
+        nav("/");
+        // User is signed out
+        // ...
+      }
     });
-  }
+
+    // unsubscribe  when component is unmounts 
+    return () => unsubscribe();
+  }, []);
+
+ 
   return (
     <div className="flex absolute w-screen px-8 py-2 bg-gradient-to-b from-black z-10  justify-between ">
-
       <img
-      className="w-44"
-       src="https://cdn.cookielaw.org/logos/dd6b162f-1a32-456a-9cfe-897231c7763c/4345ea78-053c-46d2-b11e-09adaef973dc/Netflix_Logo_PMS.png"
-       alt="logo"
+        className="w-44"
+        src={Logo}
+        alt="logo"
       />
-      
-    {user &&  <div className="flex p-2 "> 
-        <img 
-        className="w-12 h-12 "
-        alt="usericon" 
-        src={`${user?.photoURL ? user.photoURL : 'https://occ-0-6247-2164.1.nflxso.net/dnm/api/v6/K6hjPJd6cR6FpVELC5Pd6ovHRSk/AAAABdpkabKqQAxyWzo6QW_ZnPz1IZLqlmNfK-t4L1VIeV1DY00JhLo_LMVFp936keDxj-V5UELAVJrU--iUUY2MaDxQSSO-0qw.png?r=e6e'}`}/>
-          <button onClick={handleSignOut} className="rounded-lg font-bold text-white cursor-pointer">Sign out</button>
-      </div>}
-    
+
+      {user && (
+        <div className="flex p-2 ">
+          <img
+            className="w-12 h-12 "
+            alt="usericon"
+            src={user.photoURL}
+          />
+          <button
+            onClick={handleSignOut}
+            className="rounded-lg font-bold text-white cursor-pointer"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
     </div>
   );
 };
