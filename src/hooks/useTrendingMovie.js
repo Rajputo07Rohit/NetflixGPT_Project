@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react'
 import { API_OPTIONS } from '../utilis/constant'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import {  addTrendingMovie } from "../utilis/Redux/moviesSlice"
 
  const useTrendingMovie = () => {
    
     const dispatch = useDispatch();
 
+
+    const trendingMovies = useSelector(store => store.movies.trendingMovies)
   
   
     const getTrendingMovie = async () => {
@@ -18,7 +20,7 @@ import {  addTrendingMovie } from "../utilis/Redux/moviesSlice"
     }
 
     useEffect(() =>{
-        getTrendingMovie();
+       !trendingMovies && getTrendingMovie();
       },[])
 }
 
