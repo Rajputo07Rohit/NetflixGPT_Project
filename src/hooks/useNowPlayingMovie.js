@@ -12,7 +12,7 @@ import { addNowPlayingMovies } from "../utilis/Redux/moviesSlice"
   
     const getNowPlayingMovies = async () => {
   
-      const data = await fetch('https://api.themoviedb.org/3/movie/now_playing?page=1', API_OPTIONS);
+      const data = await fetch('https://api.themoviedb.org/3/movie/now_playing?api_key='+import.meta.env.VITE_TMDB_API_KEY+'&page=1', API_OPTIONS);
       const json = await data.json();
     
       dispatch(addNowPlayingMovies(json.results));

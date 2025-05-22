@@ -12,7 +12,7 @@ const useMovieTrailer = (id) => {
     
 
     const data = await fetch(
-      `https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`,
+     `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
       API_OPTIONS
     );
     const json = await data.json();
